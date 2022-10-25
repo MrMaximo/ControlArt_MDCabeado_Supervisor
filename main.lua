@@ -1,15 +1,18 @@
 -- Including LuaSQL sqlite3 library
 local driver = require('luasql.sqlite3')
 
+-- Including Lua Socket library
+local socket = require('socket')
+
 -- Including FLTK library
 local gui = require('fltk4lua')
-
 
 -- TODO: First page selecting the database *.ca file
 
 -- Read the entire database to discover all the modules
 local env = driver.sqlite3()
 local db = env:connect('./Alexandre.ca')        -- Esqpecificando o arquivo assim por não fazer a primeira parte ainda
+--local db = env:connect('./MD_Teste.ca')        -- Esqpecificando o arquivo assim por não fazer a primeira parte ainda
 
 -- Getting data from "module" table
 
@@ -35,6 +38,7 @@ while mod_id do
     nModules = nModules + 1
 end
 
+mod_req:close()
 -- Getting data from "input" table
 
 local input = {}
@@ -208,16 +212,74 @@ for i = 0, nModules-1 do
 
     grupo[i]:end_group()
 end
-
--- Fechando Aba
-tab:end_group()
-
 -- Make resizable
 -- janela.resizable = janela
 
+-- Fechando Aba
+tab:end_group()
 -- Fechando Janela
 janela:end_group()
 
 -- Exibindo Janela
 janela:show()
+gui:redraw()
+gui.wait(1)
 gui.run()
+
+-- --janela:show()
+
+-- -- Making connection
+-- local ip_addr = '192.168.15.100'
+-- local port = 4998
+
+-- -- Connecting to client
+-- local client = socket.connect(ip_addr, port)
+
+-- if client then
+--     print('Connected')
+--     --client:send('mdcmd_sendrele,0x65,0x5B,0x7C,0,0\r\n')
+-- else 
+--     print('Offline')
+-- end
+
+-- repeat
+--     -- Find MAC Address
+--     local r = client:receive()
+--     local rec_mac = string.sub(r,9,16)
+
+--     -- Find Inputs
+--     local rec_inp = {}
+--     local r_i = string.gsub(string.sub(r,18,40), ",", "")
+--     for i = 0, 12 do rec_inp[i] = tonumber(string.sub(r_i,i+1,i+1)) end
+
+--     -- DEBUG print(rec_inp[0].. " " .. rec_inp[1].. " "..rec_inp[2].. " "..rec_inp[3].. " "..rec_inp[4].. " "..rec_inp[5].. " ")
+
+--     -- Find Outputs
+--     local rec_out = {}
+--     local r_o = string.sub(r,42)
+--     for i = 0, 8 do
+--         local index = string.find(r_o,",")
+--         rec_out[i] = tonumber(string.sub(r_o,1, (index-1)))
+--         if (i < 7) then r_o = string.sub(r_o, index+1) end
+--     end
+
+--     -- DEBUG print(rec_out[0].. " " .. rec_out[1].. " "..rec_out[2].. " "..rec_out[3].. " "..rec_out[4].. " "..rec_out[5].. " ")
+
+--     -- Find module
+--     local isMod = -1
+--     for i = 0, nModules do       
+--         if(modules[i][1] == rec_mac) then
+--             isMod = i
+--             break
+--         end
+--     end
+--     -- print("mod: ".. isMod+1)
+
+--     for i = 0, 11 do
+--         -- RED = 1 and GREEN = 2
+--         indicators[isMod][i].color = (rec_inp[i]+1)
+--     end
+
+--     gui:redraw()
+--     gui.wait(1)
+-- until not client
